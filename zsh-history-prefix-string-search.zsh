@@ -516,9 +516,14 @@ _history-substring-search-up-search() {
     # can only happen if we have also exhausted the unprocessed matches in
     # _history_substring_search_raw_matches.
     #
-    # 1. Update display to indicate search not found.
+    # Keep the last available suggestion selected instead of clearing it.
     #
-    _history-substring-search-not-found
+    if [[ $#_history_substring_search_matches -gt 0 ]]; then
+      _history_substring_search_match_index=$#_history_substring_search_matches
+      _history-substring-search-found
+    else
+      _history-substring-search-not-found
+    fi
     return
   fi
 
@@ -536,12 +541,15 @@ _history-substring-search-up-search() {
     #
     # We do not have older matches.
     #
-    # 1. Move the index beyond the end of
-    #    _history_substring_search_matches.
-    # 2. Update display to indicate search not found.
+    # Keep the final available suggestion selected.
     #
-    _history_substring_search_match_index+=1
-    _history-substring-search-not-found
+    if [[ $#_history_substring_search_matches -gt 0 ]]; then
+      _history_substring_search_match_index=$#_history_substring_search_matches
+      _history-substring-search-found
+    else
+      _history_substring_search_match_index+=1
+      _history-substring-search-not-found
+    fi
   fi
 
   #
@@ -594,9 +602,14 @@ _history-substring-search-down-search() {
     #
     # We are beyond the beginning of $_history_substring_search_matches.
     #
-    # 1. Update display to indicate search not found.
+    # Keep the first available suggestion selected instead of clearing it.
     #
-    _history-substring-search-not-found
+    if [[ $#_history_substring_search_matches -gt 0 ]]; then
+      _history_substring_search_match_index=1
+      _history-substring-search-found
+    else
+      _history-substring-search-not-found
+    fi
     return
   fi
 
@@ -614,12 +627,15 @@ _history-substring-search-down-search() {
     #
     # We do not have younger matches.
     #
-    # 1. Move the index beyond the beginning of
-    #    _history_substring_search_matches.
-    # 2. Update display to indicate search not found.
+    # Keep the first available suggestion selected.
     #
-    _history_substring_search_match_index+=-1
-    _history-substring-search-not-found
+    if [[ $#_history_substring_search_matches -gt 0 ]]; then
+      _history_substring_search_match_index=1
+      _history-substring-search-found
+    else
+      _history_substring_search_match_index+=-1
+      _history-substring-search-not-found
+    fi
   fi
 
   #
