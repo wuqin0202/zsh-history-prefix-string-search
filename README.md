@@ -228,19 +228,16 @@ default values.
   according to the user's `ZSH_AUTOSUGGEST_ACCEPT_WIDGETS`,
   `ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS`, etc.
 
-* `HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE` is a global variable that defines
-  whether all search results returned are _unique_. If set to a non-empty
-  value, then only unique search results are presented. This behaviour is off
-  by default. An alternative way to ensure that search results are unique is
-  to use `setopt HIST_IGNORE_ALL_DUPS`. If this configuration variable is off
-  and `setopt HIST_IGNORE_ALL_DUPS` is unset, then `setopt HIST_FIND_NO_DUPS`
-  is still respected and it makes this script skip duplicate _adjacent_ search
-  results as you cycle through them, but this does not guarantee that search
-  results are unique: if your search results were "Dog", "Dog", "HotDog",
-  "Dog", then cycling them gives "Dog", "HotDog", "Dog". Notice that the "Dog"
-  search result appeared twice as you cycled through them. If you wish to
-  receive globally unique search results only once, then use this
-  configuration variable, or use `setopt HIST_IGNORE_ALL_DUPS`.
+* Identical matching history commands are collapsed automatically, so the same
+  full command is only suggested once even if it appears multiple times in
+  history.
+
+* If the current buffer is already exactly equal to a history command, that
+  exact command is skipped because there is no suffix left to suggest.
+
+* `HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE` is retained for compatibility with
+  older configuration, but this customized prefix-search version now always
+  presents globally unique suggestions.
 
 * `HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_TIMEOUT` is a global variable that
   defines a timeout in seconds for clearing the search highlight.

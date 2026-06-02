@@ -198,7 +198,7 @@ _history-substring-search-begin() {
   # _history_substring_search_matches.
   #
   # We use an associative array (_history_substring_search_unique_filter) as
-  # a 'set' data structure to ensure uniqueness of the results if desired.
+  # a 'set' data structure so identical history entries are shown only once.
   # If an entry (key) is in the set (non-empty value), then we have already
   # added that entry to _history_substring_search_matches.
   #
@@ -370,51 +370,30 @@ _history_substring_search_process_raw_matches() {
     local index=${_history_substring_search_raw_matches[$_history_substring_search_raw_match_index]}
 
     #
-    # If HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE is set to a non-empty value,
-    # then ensure that only unique matches are presented to the user.
-    # When HIST_IGNORE_ALL_DUPS is set, ZSH already ensures a unique history,
-    # so in this case we do not need to do anything.
     #
-    if [[ ! -o HIST_IGNORE_ALL_DUPS && -n $HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE ]]; then
-      #
-      # Get the actual history entry at the new index, and check if we have
-      # already added it to _history_substring_search_matches.
-      #
-      local entry=${history[$index]}
-
-      if [[ $entry == "$_history_substring_search_query" ]]; then
-        continue
-      fi
-
-      if [[ -z ${_history_substring_search_unique_filter[$entry]} ]]; then
-        #
-        # This is a new unique entry. Add it to the filter and append the
-        # index to _history_substring_search_matches.
-        #
-        _history_substring_search_unique_filter[$entry]=1
-        _history_substring_search_matches+=($index)
-
-        #
-        # Indicate that we did find a match.
-        #
-        return 0
-      fi
-
-    else
-      if [[ ${history[$index]} == "$_history_substring_search_query" ]]; then
-        continue
-      fi
-
-      #
-      # Just append the new history index to the processed matches.
-      #
-      _history_substring_search_matches+=($index)
-
-      #
-      # Indicate that we did find a match.
-      #
-      return 0
+    # Skip exact-buffer matches. If the current prefix already equals a full
+    # history entry, there is no suffix left to suggest.
+    #
+    local entry=${history[$index]}
+    if [[ $entry == "$_history_substring_search_query" ]]; then
+      continue
     fi
+
+    #
+    # Show each distinct history entry at most once, even if it appears
+    # multiple times in history.
+    #
+    if [[ -n ${_history_substring_search_unique_filter[$entry]} ]]; then
+      continue
+    fi
+
+    _history_substring_search_unique_filter[$entry]=1
+    _history_substring_search_matches+=($index)
+
+    #
+    # Indicate that we did find a match.
+    #
+    return 0
 
   done
 
